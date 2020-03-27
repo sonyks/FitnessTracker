@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../auth.service';
+import { Subscription } from 'rxjs';
+import { UIService } from 'src/app/shared/ui.service';
 
 @Component({
   selector: 'app-signup',
@@ -10,9 +12,23 @@ import { AuthService } from '../auth.service';
 export class SignupComponent implements OnInit {
 
   maxDate: Date;
-  constructor(private authService: AuthService) { }
+  isLoading = false;
+  loadingSub: Subscription;
+  
+  constructor(private authService: AuthService,
+    private uiService: UIService) { }
+
+  ngOnDestroy(): void {
+    if (this.loadingSub) {
+      this.loadingSub.unsubscribe();
+    }
+  }
 
   ngOnInit(): void {
+    this.loadingSub = this.uiService.loadingStateChanged.subscribe(result => {
+      this.isLoading = result;
+    });
+    
     this.maxDate = new Date();
     this.maxDate.setFullYear(this.maxDate.getFullYear() - 18);
   }
